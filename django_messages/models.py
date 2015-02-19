@@ -5,6 +5,9 @@ from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
+from django.contrib.contenttypes.generic import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 
 
@@ -51,8 +54,16 @@ class Message(models.Model):
     """
     subject = models.CharField(_("Subject"), max_length=120)
     body = models.TextField(_("Body"))
-    sender = models.ForeignKey(AUTH_USER_MODEL, related_name='sent_messages', verbose_name=_("Sender"))
-    recipient = models.ForeignKey(AUTH_USER_MODEL, related_name='received_messages', null=True, blank=True, verbose_name=_("Recipient"))
+
+    r_content_type = models.ForeignKey(ContentType, related_name='received_messages')
+    r_object_id = models.PositiveIntegerField()
+
+    s_content_type = models.ForeignKey(ContentType, related_name='sent_messages')
+    s_object_id = models.PositiveIntegerField()
+
+    sender = GenericForeignKey('s_content_type', 's_object_id') # related_name='sent_messages',
+    recipient = GenericForeignKey('r_content_type', 'r_content_type') # related_name='received_messages',
+
     parent_msg = models.ForeignKey('self', related_name='next_messages', null=True, blank=True, verbose_name=_("Parent message"))
     sent_at = models.DateTimeField(_("sent at"), null=True, blank=True)
     read_at = models.DateTimeField(_("read at"), null=True, blank=True)
