@@ -19,8 +19,10 @@ class MessageManager(models.Manager):
         marked as deleted.
         """
         return self.filter(
-            recipient=user,
+            r_object_id=user.id,
+            r_content_type=ContentType.objects.get_for_model(user),
             recipient_deleted_at__isnull=True,
+            parent_msg__isnull=True
         )
 
     def outbox_for(self, user):
@@ -61,8 +63,8 @@ class Message(models.Model):
     s_content_type = models.ForeignKey(ContentType, related_name='sent_messages')
     s_object_id = models.PositiveIntegerField()
 
-    sender = GenericForeignKey('s_content_type', 's_object_id') # related_name='sent_messages',
-    recipient = GenericForeignKey('r_content_type', 'r_content_type') # related_name='received_messages',
+    sender = GenericForeignKey(ct_field='s_content_type', fk_field='s_object_id') # related_name='sent_messages',
+    recipient = GenericForeignKey(ct_field='r_content_type', fk_field='r_object_id') # related_name='received_messages',
 
     parent_msg = models.ForeignKey('self', related_name='next_messages', null=True, blank=True, verbose_name=_("Parent message"))
     sent_at = models.DateTimeField(_("sent at"), null=True, blank=True)
@@ -98,7 +100,7 @@ class Message(models.Model):
         super(Message, self).save(**kwargs)
 
     class Meta:
-        ordering = ['-sent_at']
+        ordering = ['sent_at']
         verbose_name = _("Message")
         verbose_name_plural = _("Messages")
 

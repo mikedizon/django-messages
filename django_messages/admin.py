@@ -91,25 +91,25 @@ class MessageAdmin(admin.ModelAdmin):
             # Notification for the sender.
             notification.send([obj.sender], sender_label, {'message': obj,})
 
-        if form.cleaned_data['group'] == 'all':
-            # send to all users
-            recipients = User.objects.exclude(pk=obj.recipient.pk)
-        else:
-            # send to a group of users
-            recipients = []
-            group = form.cleaned_data['group']
-            if group:
-                group = Group.objects.get(pk=group)
-                recipients.extend(
-                    list(group.user_set.exclude(pk=obj.recipient.pk)))
-        # create messages for all found recipients
-        for user in recipients:
-            obj.pk = None
-            obj.recipient = user
-            obj.save()
+        # if form.cleaned_data['group'] == 'all':
+        #     # send to all users
+        #     recipients = User.objects.exclude(pk=obj.recipient.pk)
+        # else:
+        #     # send to a group of users
+        #     recipients = []
+        #     group = form.cleaned_data['group']
+        #     if group:
+        #         group = Group.objects.get(pk=group)
+        #         recipients.extend(
+        #             list(group.user_set.exclude(pk=obj.recipient.pk)))
+        # # create messages for all found recipients
+        #for user in recipients:
+        # obj.pk = None
+        # obj.recipient = obj,
+        # obj.save()
 
-            if notification:
-                # Notification for the recipient.
-                notification.send([user], recipients_label, {'message' : obj,})
+        if notification:
+            # Notification for the recipient.
+            notification.send([user], recipients_label, {'message' : obj,})
 
 admin.site.register(Message, MessageAdmin)
