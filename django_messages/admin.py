@@ -112,4 +112,4 @@ class MessageAdmin(admin.ModelAdmin):
             # Notification for the recipient.
             notification.send([user], recipients_label, {'message' : obj,})
 
-admin.site.register(Message, MessageAdmin)
+#admin.site.register(Message, MessageAdmin)

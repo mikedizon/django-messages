@@ -31,7 +31,8 @@ class MessageManager(models.Manager):
         marked as deleted.
         """
         return self.filter(
-            sender=user,
+            s_object_id=user.id,
+            s_content_type=ContentType.objects.get_for_model(user),            
             sender_deleted_at__isnull=True,
         )
 
@@ -100,6 +101,7 @@ class Message(models.Model):
         super(Message, self).save(**kwargs)
 
     class Meta:
+        abstract = True
         ordering = ['sent_at']
         verbose_name = _("Message")
         verbose_name_plural = _("Messages")
