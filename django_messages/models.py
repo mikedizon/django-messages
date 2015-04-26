@@ -22,7 +22,6 @@ class MessageManager(models.Manager):
             r_object_id=user.id,
             r_content_type=ContentType.objects.get_for_model(user),
             recipient_deleted_at__isnull=True,
-            parent_msg__isnull=True
         )
 
     def outbox_for(self, user):
@@ -32,7 +31,7 @@ class MessageManager(models.Manager):
         """
         return self.filter(
             s_object_id=user.id,
-            s_content_type=ContentType.objects.get_for_model(user),            
+            s_content_type=ContentType.objects.get_for_model(user),
             sender_deleted_at__isnull=True,
         )
 
